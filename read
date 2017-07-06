@@ -1,0 +1,73 @@
+import os
+import argparse
+
+
+def file_to_txt(file_path:str):
+    assert os.path.exists(file_path)
+    read_file = open(file_path, 'rb')
+
+    file_path = os.path.split(file_path)[-1]
+    out_path = file_path.split('.')[0] + '_encoded.txt'
+    if os.path.exists(out_path):
+        out_file = open(out_path, 'w')
+    else:
+        out_file = open(out_path, 'x')
+
+    try:
+        byte_content = read_file.read()
+        hex_str_content = byte_content.hex()
+        out_file.write(hex_str_content)
+    finally:
+        read_file.close()
+        out_file.close()
+
+
+def txt_to_file(txt_path:str, postfix:str):
+    assert os.path.exists(txt_path)
+    read_file = open(txt_path,'r')
+
+    txt_path_split = os.path.split(txt_path)
+    txt_name = txt_path_split[-1]
+    txt_name = txt_name.split('.')[0]+'_decoded.' + postfix
+    out_path = ''
+    for i in range(len(txt_path_split)-1):
+        out_path = os.path.join(out_path,txt_path_split[i])
+        out_path = os.path.join(out_path,txt_name)
+
+    if os.path.exists(out_path):
+        out_file = open(out_path,'wb')
+    else:
+        out_file = open(out_path,'xb')
+
+    try:
+        content = read_file.read()
+        byte_content = bytes.fromhex(content)
+        out_file.write(byte_content)
+    finally:
+        read_file.close()
+        out_file.close()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--file_in', default="/data/rui.wu/Elijha/Text2Image_Elijha_6-21/read/aaa.txt")
+    parser.add_argument('--mode', default='encode')
+    parser.add_argument('--postfix', default='txt')
+    # parser.add_argument('--file_in', default='')
+    # parser.add_argument('--mode', default='')
+    # parser.add_argument('--postfix', default='')
+    args = parser.parse_args()
+    mode = args.mode
+
+    assert mode != ''
+    assert args.file_in != '' or args.file_out != ''
+    if mode == 'encode':
+        file_to_txt(args.file_in)
+    elif mode == 'decode':
+        assert args.postfix!=''
+        txt_to_file(args.file_in,args.postfix)
+    else:
+        raise Exception('Incorrect mode!')
+
+
+if __name__=='__main__':
+    main()
